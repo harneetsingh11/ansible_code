@@ -1,0 +1,48 @@
+- hosts: all
+  tasks:    
+   - yum_repository:
+      name: docker_repo 
+      baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+      enabled: yes
+      gpgcheck: no
+      description: repos for docker
+
+
+   - package:
+      name: "docker-ce-18.09.1-3.el7.x86_64"
+      state: present
+
+
+   - pip:
+      name: docker-py
+
+
+   - service:
+      name: "docker"
+      state: started
+      enabled: yes
+
+
+   - community.general.docker_image:  
+      name: httpd
+      source: pull 
+
+
+   - file:
+      path: "/web"
+      state: directory
+
+
+   - copy: 
+      dest: "/web/site.html"
+      content: > 
+                "task: 10: configure docker with ansible and deploy webpages"
+   
+   
+   - docker_container:
+      name: webs
+      image: httpd
+      state: started
+      exposed_ports: "80"
+      published_ports: "8181:80"
+      volumes: /web:/usr/local/apache2/htdocs/    
